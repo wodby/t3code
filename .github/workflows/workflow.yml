@@ -1,0 +1,91 @@
+name: Build docker image
+
+on:
+  push:
+    branches:
+      - main
+
+    tags:
+      - '*'
+      - '!*-r[0-9]*'
+
+env:
+  T3CODE0: '0.1.5'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      t3code-versions: ${{ steps.set-matrix.outputs.t3code-versions }}
+    steps:
+      - id: set-matrix
+        run: |
+          cat << 'EOF' > versions.json
+          [
+            {"key": "t3code0", "version": "${{ env.T3CODE0 }}", "latest": "1", "latest_major": "1"}
+          ]
+          EOF
+          echo "t3code-versions=$(cat versions.json | jq -c .)" >> $GITHUB_OUTPUT
+
+  build:
+    needs: setup
+    strategy:
+      matrix:
+        t3code: ${{ fromJson(needs.setup.outputs.t3code-versions) }}
+        arch:
+          - amd64
+          - arm64
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: build and push
+        env:
+          T3CODE_VER: ${{ matrix.t3code.version }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          make
+          make test
+          make push
+
+  push:
+    runs-on: ubuntu-latest
+    needs:
+      - setup
+      - build
+    strategy:
+      matrix:
+        t3code: ${{ fromJson(needs.setup.outputs.t3code-versions) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: ./.github/actions
+        with:
+          version: ${{ matrix.t3code.version }}
+          latest: ${{ matrix.t3code.latest }}
+          latest_major: ${{ matrix.t3code.latest_major }}
+  image-revision-aliases:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/r')
+    needs: [ push ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: image-revision-aliases-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: wodby/images/.github/actions/image-revision-aliases@aee656b81ae84e0dca0cfdbea173057abe4a9426
+        with:
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_password: ${{ secrets.DOCKER_PASSWORD }}
