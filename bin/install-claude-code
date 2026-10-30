@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Downloads the stable Claude Code release from Anthropic, verifies its checksum and installs it to
+# ~/.local on the volume. Claude Code then keeps itself up to date there.
+
+set -euo pipefail
+
+base_url="https://downloads.claude.ai/claude-code-releases"
+
+case "$(uname -m)" in
+x86_64) platform=linux-x64 ;;
+aarch64) platform=linux-arm64 ;;
+*) echo "install-claude-code: unsupported architecture $(uname -m)" >&2; exit 1 ;;
+esac
+
+tmp="$(mktemp -d "${HOME}/.install-claude-code.XXXXXX")"
+trap 'rm -rf "${tmp}"' EXIT
+
+version="$(curl -fsSL --retry 3 "${base_url}/stable")"
+checksum="$(curl -fsSL --retry 3 "${base_url}/${version}/manifest.json" | jq -er --arg platform "${platform}" '.platforms[$platform].checksum')"
+
+echo "Installing Claude Code ${version} from Anthropic" >&2
+curl -fsSL --retry 3 -o "${tmp}/claude" "${base_url}/${version}/${platform}/claude"
+echo "${checksum}  ${tmp}/claude" | sha256sum --check --quiet -
+chmod +x "${tmp}/claude"
+"${tmp}/claude" install stable >&2

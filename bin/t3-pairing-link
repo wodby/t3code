@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Prints a one-time link that signs a new browser or app in to this server. It expires in 5 minutes.
+
+set -euo pipefail
+
+args=(auth pairing create --label "${1:-Wodby}")
+
+if [[ -n "${WODBY_PRIMARY_URL:-}" ]]; then
+    args+=(--base-url "${WODBY_PRIMARY_URL}")
+fi
+
+exec t3 "${args[@]}"
