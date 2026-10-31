@@ -14,6 +14,9 @@ ENV T3CODE_PORT=3773
 
 ENV SHELL=/bin/bash
 
+# The fonts and libraries from fontconfig on are for T3 Code's built-in browser, which downloads
+# itself on first use. `t3 browser setup` can't do this here: it needs the browser downloaded first
+# and fails on build hosts that restrict user namespaces.
 RUN echo 'Acquire::Retries "10";' > /etc/apt/apt.conf.d/80-retries && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -29,7 +32,26 @@ RUN echo 'Acquire::Retries "10";' > /etc/apt/apt.conf.d/80-retries && \
         python3 \
         ripgrep \
         tini \
-        unzip && \
+        unzip \
+        fontconfig \
+        fonts-liberation \
+        libasound2t64 \
+        libatk-bridge2.0-0t64 \
+        libatk1.0-0t64 \
+        libatspi2.0-0t64 \
+        libdbus-1-3 \
+        libexpat1 \
+        libgbm1 \
+        libglib2.0-0t64 \
+        libnss3 \
+        libx11-6 \
+        libxcb1 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxext6 \
+        libxfixes3 \
+        libxkbcommon0 \
+        libxrandr2 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
@@ -57,11 +79,6 @@ RUN set -eu; \
     tar -xzof "${archive}" --strip-components=1 -C /opt/t3code; \
     rm -f "${archive}" SHA256SUMS; \
     ln -s /opt/t3code/t3 /usr/local/bin/t3
-
-# The libraries and fonts of T3 Code's built-in browser. Installing them later would need root.
-RUN t3 browser setup && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Claude Code isn't installed here: its license doesn't allow redistributing it. The entrypoint
 # downloads it from Anthropic to the volume on first start.

@@ -77,3 +77,9 @@ Codex's **Supervised** and **Auto** modes run commands in a sandbox that needs u
 namespaces. Where the container runtime blocks them, use **Full access**, T3 Code's default for new
 threads, or allow them for the container. **Full access** relies on the container as the boundary, so
 keep credentials you don't want an agent to use out of it.
+
+T3 Code's built-in browser also uses user namespaces for Chrome's sandbox. Where they're blocked,
+browser tabs report that the host blocks the sandbox, and `t3 browser setup` can't help inside a
+container. Allow them for the container, or set `T3CODE_SERVER_BROWSER_SANDBOX=0` to run the browser
+without Chrome's sandbox. Do that only if you accept that a compromised web page could then reach
+everything in the container.
