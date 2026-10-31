@@ -42,6 +42,13 @@ run codex --version > /dev/null
 run opencode --version > /dev/null
 echo "OK"
 
+echo -n "Checking the browser's fonts and libraries... "
+run fc-match sans-serif > /dev/null
+for lib in libnss3 libatk-1.0 libatk-bridge-2.0 libgbm libasound libxkbcommon; do
+    run sh -c "ldconfig -p | grep -q ${lib}.so"
+done
+echo "OK"
+
 echo -n "Checking a login shell keeps tools on the volume first... "
 run bash -lc 'echo ${PATH}' | grep -q '^/data/.local/bin:'
 echo "OK"
