@@ -24,7 +24,7 @@ All images are built for `linux/amd64` and `linux/arm64`.
 ## Run it
 
 ```bash
-docker run --rm -p 3773:3773 -v t3code:/data -e WODBY_PRIMARY_URL=http://localhost:3773 wodby/t3code:0
+docker run --rm -p 3773:3773 -v t3code:/data -e PUBLIC_URL=http://localhost:3773 wodby/t3code:0
 ```
 
 Sign in with a one-time link, which expires after 5 minutes:
@@ -65,7 +65,7 @@ Run one container per volume. T3 Code's database is a single SQLite file.
 | `T3CODE_HOST` | `0.0.0.0` | Address to listen on |
 | `T3CODE_PORT` | `3773` | Port to listen on |
 | `T3CODE_TELEMETRY_ENABLED` | | Set to `false` to stop [T3 Code's product usage data](https://github.com/pingdotgg/t3code/blob/main/docs/user/telemetry.md) |
-| `WODBY_PRIMARY_URL` | | Public address used in the links from `t3-pairing-link` |
+| `PUBLIC_URL` | | Public address used in the links from `t3-pairing-link`. Without it, the command prints only the token, which you can enter on T3 Code's sign-in page |
 | `DEBUG` | | Trace the entrypoint |
 
 T3 Code also reads its own [`T3CODE_*` variables](https://github.com/pingdotgg/t3code). Agents inherit
