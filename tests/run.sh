@@ -6,7 +6,7 @@ if [[ -n "${DEBUG}" ]]; then
     set -x
 fi
 
-cid="$(docker run -d -e WODBY_PRIMARY_URL=https://t3code.example.com --name "${NAME}" "${IMAGE}")"
+cid="$(docker run -d -e PUBLIC_URL=https://t3code.example.com --name "${NAME}" "${IMAGE}")"
 trap "docker rm -vf ${cid} > /dev/null" EXIT
 
 run() {
@@ -32,7 +32,7 @@ echo -n "Checking the session API requires pairing... "
 run curl -fsS http://localhost:3773/api/auth/session | grep -q '"authenticated":false'
 echo "OK"
 
-echo -n "Checking the pairing link uses the primary URL... "
+echo -n "Checking the pairing link uses the public URL... "
 run t3-pairing-link | grep -q "https://t3code.example.com/pair#token="
 echo "OK"
 

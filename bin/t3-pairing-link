@@ -5,8 +5,8 @@ set -euo pipefail
 
 args=(auth pairing create --label "${1:-Wodby}")
 
-if [[ -n "${WODBY_PRIMARY_URL:-}" ]]; then
-    args+=(--base-url "${WODBY_PRIMARY_URL}")
+if [[ -n "${PUBLIC_URL:-}" ]]; then
+    args+=(--base-url "${PUBLIC_URL}")
 fi
 
 exec t3 "${args[@]}"
