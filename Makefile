@@ -1,6 +1,6 @@
 -include env_make
 
-T3CODE_VER ?= 0.1.5
+T3CODE_VER ?= 0.1.6
 T3CODE_VER_MINOR = $(shell echo "${T3CODE_VER}" | grep -oE '^[0-9]+\.[0-9]+')
 
 TAG ?= $(T3CODE_VER_MINOR)
