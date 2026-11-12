@@ -10,7 +10,7 @@ on:
       - '!*-r[0-9]*'
 
 env:
-  T3CODE0: '0.1.8'
+  T3CODE0: '0.1.9'
 
 jobs:
   setup:
