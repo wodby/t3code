@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  T3CODE0: '0.1.11'
+  T3CODE0: '0.1.12'
 
 jobs:
   setup:
